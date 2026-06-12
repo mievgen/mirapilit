@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Онлайн-запись — Салон</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- ── HEADER ── -->
+      <header>
+        <div class="logo-mark">💅</div>
+        <h1><em>Онлайн запись - Mira</em></h1>
+        <p class="tagline">
+          Ногти<span class="tagline-sep">·</span>Брови<span class="tagline-sep"
+            >·</span
+          >Ресницы
+        </p>
+      </header>
+
+      <!-- ── PROGRESS ── -->
+      <div class="progress">
+        <div class="pg-step active" id="pg1">
+          <div class="pg-dot"><span class="pg-num">1</span></div>
+          <div class="pg-label">Услуги</div>
+        </div>
+        <div class="pg-step" id="pg2">
+          <div class="pg-dot"><span class="pg-num">2</span></div>
+          <div class="pg-label">Дата</div>
+        </div>
+        <div class="pg-step" id="pg3">
+          <div class="pg-dot"><span class="pg-num">3</span></div>
+          <div class="pg-label">Время</div>
+        </div>
+        <div class="pg-step" id="pg4">
+          <div class="pg-dot"><span class="pg-num">4</span></div>
+          <div class="pg-label">Данные</div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     STEP 1: УСЛУГИ
+══════════════════════════════ -->
+      <div class="card active" id="s1">
+        <div class="card-title">Выберите услуги</div>
+        <div class="card-hint">
+          Можно выбрать несколько — длительность рассчитается автоматически
+        </div>
+
+        <!-- Маникюр title -->
+        <div class="category">
+          <div class="cat-label">Маникюр</div>
+          <div class="svc-grid">
+            <!-- Маникюр -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="manicure"
+                data-dur="60"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Маникюр</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">60 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 1 300 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Маникюр с покрытием -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="manicure_top"
+                data-dur="120"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Маникюр с покрытием</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">120 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 500 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Маникюр с покрытем сложная коррекция -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="complex_correction"
+                data-dur="150"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">
+                    Маникюр с покрытем сложная коррекция
+                  </div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">150 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 3 000 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Дизайн ногтей -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="nail_design"
+                data-dur="30"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">
+                    Дизайн ногтей <em>(аэрография, френч, гардиент)</em>
+                  </div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">30 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 500 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Наращивание ногтей -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="extensions"
+                data-dur="150"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Наращивание ногтей</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">150 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 4 000 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Коррекция наращивания -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="correction"
+                data-dur="120"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Коррекция ногтей</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">120 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 3 000 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Педикюр title -->
+        <div class="category">
+          <div class="cat-label">Педикюр</div>
+          <div class="svc-grid">
+            <!-- Педикюр -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="pedicure"
+                data-dur="90"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">
+                    Педикюр<em>(обработка пальчиков + покрытие)</em>
+                  </div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">90 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 500 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Педикюр гигиенический-->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="pedicure_hygiene"
+                data-dur="90"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">
+                    Педикюр гигиенический<em>(обработка стопы и пальчиков)</em>
+                  </div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">90 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 500 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!--  Полныйпедикюр -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="full_pedicure"
+                data-dur="120"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Полнный педикюр</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">120 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 3 000 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Брови title -->
+        <div class="category">
+          <div class="cat-label">Брови</div>
+          <div class="svc-grid">
+            <!-- Коррекция бровей -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="brow_shape"
+                data-dur="30"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Коррекция бровей</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">30 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 700 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Окрашевание бровей -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="eyebrow_shaping"
+                data-dur="30"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Окрашевание бровей</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">30 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 700 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Ламинирование бровей -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="brow_lamination"
+                data-dur="60"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Ламинирование бровей</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">60 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 000 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Ламинирование + коррекция -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="lamination_correction"
+                data-dur="90"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Ламинирование бровей + коррекция</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">90 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 800 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Ресницы title -->
+        <div class="category">
+          <div class="cat-label">Ресницы</div>
+          <div class="svc-grid">
+            <!-- Ламинирование ресниц -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="lash_lamination"
+                data-dur="90"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Ламинирование ресниц</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">90 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 500 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Ваксинг title -->
+        <div class="category">
+          <div class="cat-label">Ваксинг</div>
+          <div class="svc-grid">
+            <!-- Ваксинг -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="waxing"
+                data-dur="15"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Удаление пушка надгубой, в носу</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">15 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 300 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- СПА процедура -->
+        <div class="category">
+          <div class="cat-label">SPA процедура</div>
+          <div class="svc-grid">
+            <!-- {} -->
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="spa"
+                data-dur="20"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">Парафинотерапия</div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">20 мин</span
+                    ><span class="svc-sep">.</span
+                    ><span class="svc-price">от 500 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Итого -->
+        <div class="total-bar" id="total-bar">
+          <div id="total-chips-wrap" style="flex: 1; min-width: 0">
+            <div class="total-hint" id="total-hint">
+              Выберите хотя бы одну услугу
+            </div>
+            <div
+              class="total-chips"
+              id="total-chips"
+              style="display: none"
+            ></div>
+          </div>
+          <div
+            class="total-dur"
+            id="total-dur-block"
+            style="display: none; margin-left: 14px; text-align: right"
+          >
+            <div class="total-dur-num" id="total-dur-num">0</div>
+            <div class="total-dur-lbl">мин</div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-next" id="btn1" onclick="go(2)" disabled>
+            Выбрать дату →
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     STEP 2: ДАТА
+══════════════════════════════ -->
+      <div class="card" id="s2">
+        <div class="card-title">Выберите дату</div>
+        <div class="card-hint">Серым отмечены нерабочие дни</div>
+        <div class="cal-nav-row">
+          <button class="cal-btn" onclick="shiftMonth(-1)">‹</button>
+          <div class="cal-month-lbl" id="cal-lbl"></div>
+          <button class="cal-btn" onclick="shiftMonth(1)">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid">
+          <div class="dow">Пн</div>
+          <div class="dow">Вт</div>
+          <div class="dow">Ср</div>
+          <div class="dow">Чт</div>
+          <div class="dow">Пт</div>
+          <div class="dow">Сб</div>
+          <div class="dow">Вс</div>
+        </div>
+        <div class="btn-row" style="margin-top: 18px">
+          <button class="btn-back" onclick="go(1)">← Назад</button>
+          <button class="btn-next" id="btn2" onclick="go(3)" disabled>
+            Выбрать время →
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     STEP 3: ВРЕМЯ
+══════════════════════════════ -->
+      <div class="card" id="s3">
+        <div class="card-title">Выберите время</div>
+        <div id="s3-body">
+          <div class="slots-loader">Загружаем расписание…</div>
+        </div>
+        <div class="alert alert-err" id="err-slots"></div>
+        <div class="btn-row">
+          <button class="btn-back" onclick="go(2)">← Назад</button>
+          <button class="btn-next" id="btn3" onclick="doHold()" disabled>
+            Забронировать →
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     STEP 4: КОНТАКТЫ
+══════════════════════════════ -->
+      <div class="card" id="s4">
+        <div class="card-title">Ваши данные</div>
+        <div class="card-hint">Для подтверждения записи</div>
+
+        <div class="hold-banner" id="hold-banner">
+          <svg
+            width="15"
+            height="15"
+            fill="none"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12,6 12,12 16,14" />
+          </svg>
+          <span>Слот забронирован за вами</span>
+          <span class="hold-timer" id="hold-timer">15:00</span>
+        </div>
+
+        <div class="summary">
+          <div class="sum-head">Ваша запись</div>
+          <div class="sum-row">
+            <span class="sum-key">Услуги</span
+            ><span class="sum-val" id="ok-svc">—</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-key">Длительность</span
+            ><span class="sum-val" id="ok-dur">—</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-key">Дата</span
+            ><span class="sum-val" id="ok-date">—</span>
+          </div>
+          <div class="sum-row">
+            <span class="sum-key">Время</span
+            ><span class="sum-val" id="ok-time">—</span>
+          </div>
+        </div>
+
+        <div class="fields">
+          <div
+            class="field"
+            aria-hidden="true"
+            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden"
+          >
+            <label>Website</label
+            ><input
+              type="text"
+              id="f-website"
+              tabindex="-1"
+              autocomplete="off"
+              inputmode="text"
+            />
+          </div>
+          <div class="field">
+            <label>Ваше имя *</label
+            ><input
+              type="text"
+              id="f-name"
+              placeholder="Например, Анна"
+              oninput="validateF4()"
+            />
+          </div>
+          <div class="field">
+            <label>Телефон *</label
+            ><input
+              type="tel"
+              id="f-phone"
+              placeholder="+7 (___) ___-__-__"
+              oninput="
+                fmtPhone(this)
+                validateF4()
+              "
+            />
+          </div>
+          <div class="field">
+            <label>Комментарий</label
+            ><textarea
+              id="f-comment"
+              rows="2"
+              placeholder="Пожелания, особенности…"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="alert alert-err" id="err-book"></div>
+        <div class="alert alert-warn" id="warn-exp">
+          Бронь истекла — вернитесь к выбору времени.
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="back4()">← Назад</button>
+          <button class="btn-next" id="btn4" onclick="doSubmit()" disabled>
+            Записаться
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════
+     SUCCESS
+══════════════════════════════ -->
+      <div class="card" id="s-ok">
+        <div class="success">
+          <div class="ok-icon">💅</div>
+          <h2>Вы записаны!</h2>
+          <p>
+            Ждём вас! Если планы изменятся — пожалуйста, сообщите заранее, чтобы
+            это время смогли занять другие 🙏
+          </p>
+          <div
+            class="summary"
+            style="text-align: left; max-width: 360px; margin: 0 auto 26px"
+          >
+            <div class="sum-head">Детали записи</div>
+            <div class="sum-row">
+              <span class="sum-key">Услуги</span
+              ><span class="sum-val" id="fin-svc">—</span>
+            </div>
+            <div class="sum-row">
+              <span class="sum-key">Дата и время</span
+              ><span class="sum-val" id="fin-dt">—</span>
+            </div>
+            <div class="sum-row">
+              <span class="sum-key">Имя</span
+              ><span class="sum-val" id="fin-name">—</span>
+            </div>
+          </div>
+          <button class="btn-again" onclick="resetAll()">
+            Записаться ещё раз
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/frontend/main.js"></script>
+  </body>
+</html>

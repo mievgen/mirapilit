@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mira Admin</title>
+  <style>
+    :root {
+      --ink: #23201d;
+      --muted: #746d64;
+      --line: #e7dfd3;
+      --paper: #fffaf2;
+      --card: #ffffff;
+      --wash: #f6f0e7;
+      --gold: #b89137;
+      --gold-soft: #ead6a2;
+      --green: #23765a;
+      --green-soft: #e4f3eb;
+      --red: #b93c35;
+      --red-soft: #f8e7e4;
+      --blue: #315f92;
+      --blue-soft: #e5eff9;
+      --shadow: 0 24px 70px rgba(51, 42, 31, 0.12);
+      --radius: 22px;
+      --sans: "Aptos", "Segoe UI", sans-serif;
+      --serif: "Cormorant Garamond", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(184, 145, 55, 0.20), transparent 28rem),
+        radial-gradient(circle at 88% 0%, rgba(49, 95, 146, 0.14), transparent 24rem),
+        linear-gradient(135deg, #fffaf2 0%, #f4ede4 42%, #fff 100%);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .hidden { display: none !important; }
+
+    .login-screen {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .login-card {
+      width: min(460px, 100%);
+      padding: 34px;
+      border: 1px solid rgba(184, 145, 55, 0.25);
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand-mark {
+      display: inline-grid;
+      width: 54px;
+      height: 54px;
+      place-items: center;
+      border-radius: 18px;
+      color: #7d5e13;
+      font-family: var(--serif);
+      font-size: 30px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff6d6, #d4aa43);
+      box-shadow: 0 14px 28px rgba(184, 145, 55, 0.25);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-weight: 500;
+    }
+
+    h1 {
+      margin-top: 18px;
+      font-family: var(--serif);
+      font-size: clamp(34px, 6vw, 54px);
+      line-height: 0.95;
+    }
+
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 42px);
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .lead {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      padding: 13px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(184, 145, 55, 0.12);
+    }
+
+    .error {
+      min-height: 20px;
+      color: var(--red);
+      font-size: 13px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--gold-soft);
+      font-weight: 800;
+      transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(184, 145, 55, 0.22);
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: linear-gradient(135deg, #c79e38, #8f6717);
+    }
+
+    .btn.ghost {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .btn.small {
+      min-height: 34px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px;
+      border-right: 1px solid rgba(231, 223, 211, 0.9);
+      background: rgba(255, 250, 242, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .side-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .side-brand strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .side-brand span {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--muted);
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .nav button.active {
+      border-color: rgba(184, 145, 55, 0.32);
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 12px 30px rgba(70, 54, 28, 0.08);
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      left: 24px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .main {
+      min-width: 0;
+      padding: 26px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid rgba(231, 223, 211, 0.88);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 16px 46px rgba(51, 42, 31, 0.08);
+    }
+
+    .card.pad {
+      padding: 22px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .metric {
+      display: grid;
+      gap: 8px;
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .metric::after {
+      content: "";
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      right: -42px;
+      bottom: -62px;
+      border-radius: 999px;
+      background: rgba(184, 145, 55, 0.12);
+    }
+
+    .metric b {
+      font-family: var(--serif);
+      font-size: 40px;
+      font-weight: 600;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 24px 0 14px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .segmented button {
+      min-height: 34px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 12px;
+      font-weight: 800;
+    }
+
+    .segmented button.active {
+      color: #fff;
+      background: var(--ink);
+    }
+
+    .timeline {
+      position: relative;
+      min-height: 520px;
+      padding-left: 70px;
+    }
+
+    .timeline-empty {
+      display: grid;
+      min-height: 180px;
+      place-items: center;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .tick {
+      position: absolute;
+      right: 0;
+      left: 0;
+      border-top: 1px solid #eee6dc;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tick span {
+      position: absolute;
+      top: -9px;
+      left: 0;
+      width: 58px;
+      text-align: right;
+    }
+
+    .timeline-event {
+      position: absolute;
+      right: 0;
+      left: 82px;
+      display: grid;
+      align-content: start;
+      gap: 4px;
+      min-height: 52px;
+      padding: 12px 14px;
+      border-left: 5px solid var(--gold);
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fff, #fff7e5);
+      box-shadow: 0 12px 28px rgba(51, 42, 31, 0.10);
+      overflow: hidden;
+    }
+
+    .timeline-event strong {
+      font-size: 14px;
+    }
+
+    .timeline-event small {
+      color: var(--muted);
+    }
+
+    .week-board {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .week-day,
+    .month-cell {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .week-day.off,
+    .month-cell.off {
+      background: rgba(255, 255, 255, 0.48);
+      color: #afa69a;
+    }
+
+    .day-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .day-title b {
+      color: var(--ink);
+      font-size: 18px;
+    }
+
+    .appointment-chip {
+      display: grid;
+      gap: 3px;
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 14px;
+      color: var(--ink);
+      background: var(--blue-soft);
+      font-size: 13px;
+    }
+
+    .appointment-chip strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .appointment-chip span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(110px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    .month-cell {
+      min-height: 138px;
+      cursor: pointer;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+
+    .month-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(51, 42, 31, 0.10);
+    }
+
+    .month-cell.outside {
+      opacity: 0.48;
+    }
+
+    .month-cell.today {
+      border-color: var(--gold);
+      box-shadow: inset 0 0 0 2px rgba(184, 145, 55, 0.18);
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: var(--muted);
+      background: #f5efe6;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .badge.green {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .badge.red {
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .badge.blue {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 0.85fr) minmax(220px, 1.4fr) minmax(160px, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .list-row .muted,
+    .muted {
+      color: var(--muted);
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .empty {
+      padding: 28px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .settings-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(35, 32, 29, 0.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal {
+      width: min(760px, 100%);
+      max-height: min(820px, 92vh);
+      overflow: auto;
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+    }
+
+    .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 250, 242, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .modal-body {
+      padding: 22px;
+    }
+
+    .service-picker {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .service-option {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .service-option input {
+      width: auto;
+      margin-top: 2px;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .slot-btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .slot-btn.active {
+      border-color: var(--gold);
+      color: #fff;
+      background: var(--ink);
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 80;
+      max-width: 360px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      color: #fff;
+      background: var(--ink);
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24);
+    }
+
+    @media (max-width: 1060px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sidebar-footer {
+        position: static;
+        margin-top: 20px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.cols-3,
+      .grid.cols-2,
+      .settings-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .list-row {
+        grid-template-columns: 1fr;
+      }
+
+      .row-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .main,
+      .sidebar {
+        padding: 16px;
+      }
+
+      .topbar,
+      .section-head {
+        display: grid;
+      }
+
+      .nav {
+        grid-template-columns: 1fr;
+      }
+
+      .month-grid,
+      .week-board {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline {
+        padding-left: 0;
+      }
+
+      .tick span {
+        display: none;
+      }
+
+      .timeline-event {
+        left: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+
+  <section id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <span class="brand-mark">M</span>
+      <h1>Панель Mira</h1>
+      <p class="lead">Управление записями, рабочими часами и календарем мастера. Пароль проверяется только на сервере.</p>
+      <div class="field">
+        <label for="passwordInput">Пароль администратора</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Введите пароль">
+      </div>
+      <p id="loginError" class="error"></p>
+      <button id="loginBtn" class="btn primary" type="submit">Войти</button>
+    </form>
+  </section>
+
+  <div id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="side-brand">
+        <span class="brand-mark">M</span>
+        <div>
+          <strong>Mira</strong>
+          <span>Back office</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="active" type="button" data-nav="dashboard">Сегодня <span id="todayCountBadge">0</span></button>
+        <button type="button" data-nav="calendar">Календарь <span>день/неделя</span></button>
+        <button type="button" data-nav="appointments">Записи <span id="allCountBadge">0</span></button>
+        <button type="button" data-nav="schedule">График <span>часы/блоки</span></button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn primary" type="button" data-open-create>Создать запись</button>
+        <button id="logoutBtn" class="btn ghost" type="button">Выйти</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="rangeTitle">Сегодня</h2>
+          <p id="rangeSubtitle" class="lead">Живая синхронизация с Google Calendar</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn ghost small" type="button" data-prev>Назад</button>
+          <button class="btn ghost small" type="button" data-today>Сегодня</button>
+          <button class="btn ghost small" type="button" data-next>Вперед</button>
+          <button class="btn small" type="button" data-refresh>Обновить</button>
+        </div>
+        <div id="statusText" class="status">Готово</div>
+      </header>
+
+      <section data-view-panel="dashboard">
+        <div class="grid cols-3">
+          <article class="card metric">
+            <span>Записей сегодня</span>
+            <b id="metricToday">0</b>
+          </article>
+          <article class="card metric">
+            <span>Минут занято</span>
+            <b id="metricMinutes">0</b>
+          </article>
+          <article class="card metric">
+            <span>Ближайшая запись</span>
+            <b id="metricNext">-</b>
+          </article>
+        </div>
+
+        <div class="section-head">
+          <div>
+            <h3>Хронология сегодняшнего дня</h3>
+            <p class="muted">Записи можно перенести, удалить или добавить вручную после звонка клиента.</p>
+          </div>
+          <button class="btn primary small" type="button" data-open-create>Новая запись</button>
+        </div>
+        <div id="todayTimeline" class="card pad"></div>
+      </section>
+
+      <section class="hidden" data-view-panel="calendar">
+        <div class="section-head">
+          <div>
+            <h3>Календарь мастера</h3>
+            <p class="muted">Месяц, неделя и день показывают реальные записи из Google Calendar.</p>
+          </div>
+          <div class="segmented">
+            <button type="button" data-mode="day">День</button>
+            <button class="active" type="button" data-mode="week">Неделя</button>
+            <button type="button" data-mode="month">Месяц</button>
+          </div>
+        </div>
+        <div id="calendarBoard"></div>
+      </section>
+
+      <section class="hidden" data-view-panel="appointments">
+        <div class="section-head">
+          <div>
+            <h3>Все записи в выбранном периоде</h3>
+            <p class="muted">Удаление освобождает слот, перенос меняет время события в Google Calendar.</p>
+          </div>
+          <div class="toolbar">
+            <input id="appointmentSearch" type="search" placeholder="Поиск клиента, телефона или услуги">
+            <button class="btn primary small" type="button" data-open-create>Создать</button>
+          </div>
+        </div>
+        <div id="appointmentsList" class="list"></div>
+      </section>
+
+      <section class="hidden" data-view-panel="schedule">
+        <div class="section-head">
+          <div>
+            <h3>Планирование графика</h3>
+            <p class="muted">Настраивайте нестандартные рабочие дни, отпуска, больничные и технические блоки.</p>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+          <article class="card pad">
+            <h3>Рабочие часы на дату</h3>
+            <div class="field">
+              <label for="hoursDate">Дата</label>
+              <input id="hoursDate" type="date">
+            </div>
+            <div class="grid cols-2">
+              <div class="field">
+                <label for="hoursStart">Начало</label>
+                <input id="hoursStart" type="time" value="08:00" step="900">
+              </div>
+              <div class="field">
+                <label for="hoursEnd">Конец</label>
+                <input id="hoursEnd" type="time" value="21:00" step="900">
+              </div>
+            </div>
+            <div class="field">
+              <label for="hoursBreaks">Перерывы</label>
+              <textarea id="hoursBreaks" placeholder="13:00-14:00&#10;17:30-18:00"></textarea>
+            </div>
+            <div class="toolbar" style="margin-top: 16px">
+              <button id="saveHoursBtn" class="btn primary" type="button">Сохранить часы</button>
+              <button id="removeHoursByDateBtn" class="btn ghost" type="button">Вернуть базовый график</button>
+            </div>
+          </article>
+
+          <article class="card pad">
+            <h3>Блокировка времени</h3>
+            <div class="field">
+              <label for="blockDate">Дата</label>
+              <input id="blockDate" type="date">
+            </div>
+            <label class="service-option" style="margin-top: 12px">
+              <input id="blockAllDay" type="checkbox" checked>
+              <span>Закрыть весь день</span>
+            </label>
+            <div class="grid cols-2">
+              <div class="field">
+                <label for="blockStart">Начало</label>
+                <input id="blockStart" type="time" value="10:00" step="900">
+              </div>
+              <div class="field">
+                <label for="blockEnd">Конец</label>
+                <input id="blockEnd" type="time" value="15:00" step="900">
+              </div>
+            </div>
+            <div class="field">
+              <label for="blockLabel">Причина</label>
+              <input id="blockLabel" type="text" placeholder="Отпуск, больничный, занято">
+            </div>
+            <div class="toolbar" style="margin-top: 16px">
+              <button id="saveBlockBtn" class="btn primary" type="button">Поставить блок</button>
+            </div>
+          </article>
+        </div>
+
+        <div class="grid cols-2" style="margin-top: 16px">
+          <article class="card pad">
+            <h3>Нестандартные рабочие дни</h3>
+            <div id="customHoursList" class="list" style="margin-top: 14px"></div>
+          </article>
+          <article class="card pad">
+            <h3>Блокировки</h3>
+            <div id="blocksList" class="list" style="margin-top: 14px"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden">
+    <div id="modal" class="modal" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <script src="/frontend/admin.js"></script>
+</body>
+</html>
