@@ -99,7 +99,11 @@ function doGet(e) {
       case "ping":
         return jsonResp({
           ok: true,
-          ts: Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss"),
+          ts: Utilities.formatDate(
+            new Date(),
+            TIMEZONE,
+            "yyyy-MM-dd'T'HH:mm:ss",
+          ),
           timezone: TIMEZONE,
         })
       case "getServices":
@@ -235,7 +239,8 @@ function handleHoldSlot(body) {
   ) {
     return {
       success: false,
-      error: "Too many booking attempts. Please wait a few minutes and try again.",
+      error:
+        "Too many booking attempts. Please wait a few minutes and try again.",
     }
   }
 
@@ -347,12 +352,7 @@ function handleBook(body) {
   }
 
   const slotRateKey =
-    "book-slot|" +
-    body.date +
-    "|" +
-    body.time +
-    "|" +
-    selection.ids.join(",")
+    "book-slot|" + body.date + "|" + body.time + "|" + selection.ids.join(",")
   if (
     isRateLimited(
       "book-phone|" + phone,
@@ -454,18 +454,7 @@ function handleBook(body) {
   }
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║   ГЕНЕРАЦИЯ СЛОТОВ — логика как в Yclients / Booksy          ║
-// ╠══════════════════════════════════════════════════════════════╣
-// ║  Правило: слот показывается ТОЛЬКО если выполнены ВСЕ три   ║
-// ║  условия одновременно:                                       ║
-// ║  1. Услуга целиком помещается до конца рабочего дня          ║
-// ║     (start + duration ≤ dayEnd)                              ║
-// ║  2. Весь отрезок [start, start+duration] не пересекается     ║
-// ║     ни с одним занятым событием из календаря                 ║
-// ║  3. Весь отрезок [start, start+duration] не пересекается     ║
-// ║     ни с одним перерывом из расписания                       ║
-// ╚══════════════════════════════════════════════════════════════╝
+// ║   ГЕНЕРАЦИЯ СЛОТОВ
 
 function handleGetSlots(params) {
   const { date, serviceIds, duration, ignoreEventId, serviceLabel } = params
@@ -490,8 +479,16 @@ function handleGetAvailableDates(params) {
   const month = Number(params.month)
   const { serviceIds, duration, ignoreEventId, serviceLabel } = params
 
-  if (!year || !month || month < 1 || month > 12 || (!serviceIds && !duration)) {
-    return { error: "Parameters year, month and serviceIds/duration are required" }
+  if (
+    !year ||
+    !month ||
+    month < 1 ||
+    month > 12 ||
+    (!serviceIds && !duration)
+  ) {
+    return {
+      error: "Parameters year, month and serviceIds/duration are required",
+    }
   }
 
   const selection = serviceIds
@@ -504,15 +501,35 @@ function handleGetAvailableDates(params) {
   const daysInMonth = new Date(year, month, 0).getDate()
   const todayStr = formatDate(new Date())
   const availableDates = []
+
+  // ── ONE calendar reference for the whole month ──────────────
   const calendar = getCalendar()
+
+  // ── Fetch ALL month events in a single API call ─────────────
+  const monthStart = buildDateTime(formatDateParts(year, month, 1), "00:00")
+  const monthEnd = buildDateTime(
+    formatDateParts(year, month, daysInMonth),
+    "23:59",
+  )
+  // Clean expired holds once across the whole month
+  cleanExpiredHoldsInRange(calendar, monthStart, monthEnd)
+
+  // Pre-fetch all events for the month in one shot
+  const allMonthEvents = calendar.getEvents(monthStart, monthEnd)
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = formatDateParts(year, month, day)
     if (date < todayStr) continue
 
-    const availability = getDayAvailability(date, selection, calendar, {
-      ignoredEventId: ignoreEventId || null,
-    })
+    const availability = getDayAvailabilityFromEvents(
+      date,
+      selection,
+      calendar,
+      allMonthEvents,
+      {
+        ignoredEventId: ignoreEventId || null,
+      },
+    )
     if (availability.slots && availability.slots.length) {
       availableDates.push(date)
     }
@@ -562,7 +579,10 @@ function resolveServiceSelection(serviceIds) {
     return { error: "Unknown services: " + unknownIds.join(", ") }
   }
 
-  const serviceDuration = ids.reduce((sum, id) => sum + SERVICES[id].duration, 0)
+  const serviceDuration = ids.reduce(
+    (sum, id) => sum + SERVICES[id].duration,
+    0,
+  )
   return {
     ids,
     serviceDuration,
@@ -636,11 +656,66 @@ function getDayAvailability(date, selection, calendar, options) {
   }
 }
 
+function getDayAvailabilityFromEvents(
+  date,
+  selection,
+  calendar,
+  allEvents,
+  options,
+) {
+  const dayHours = getDayHours(date, calendar)
+  if (!dayHours) {
+    return { slots: [], reason: "day_off" }
+  }
+
+  const dayStart = buildDateTime(date, dayHours.start)
+  const dayEnd = buildDateTime(date, dayHours.end)
+  const dayStartMs = dayStart.getTime()
+  const dayEndMs = dayEnd.getTime()
+
+  // Filter the pre-fetched events down to this day's window
+  const dayEvents = allEvents.filter((ev) =>
+    intervalsOverlap(
+      dayStartMs,
+      dayEndMs,
+      ev.getStartTime().getTime(),
+      ev.getEndTime().getTime(),
+    ),
+  )
+
+  const busyIntervals = mergeBusyIntervals(
+    buildBusyIntervals(
+      dayEvents,
+      options && options.ignoredEventId,
+      dayStartMs,
+      dayEndMs,
+    ).concat(buildBreakBusyIntervals(date, dayHours.breaks)),
+  )
+
+  const stepMs = SLOT_STEP_MIN * 60000
+  const earliestStartMs = getEarliestBookableStartMs(date, dayStartMs, stepMs)
+  const slots = buildSlotsFromAvailability(
+    busyIntervals,
+    dayStartMs,
+    dayEndMs,
+    selection.totalDuration * 60000,
+    stepMs,
+    earliestStartMs,
+  )
+
+  if (!slots.length) {
+    return { slots: [], reason: "no_free_slots" }
+  }
+
+  return { slots }
+}
+
 function buildBusyIntervals(events, ignoredEventId, clampStartMs, clampEndMs) {
   return events
     .filter(
       (ev) =>
-        ev.getId() !== ignoredEventId && !ev.getTitle().startsWith(HOURS_PREFIX),
+        ev.getId() !== ignoredEventId &&
+        !ev.getTitle().startsWith(HOURS_PREFIX),
     )
     .map((ev) => ({
       start:
@@ -778,7 +853,11 @@ function validateBookingWindow(date, time, totalDuration) {
   const dayStart = buildDateTime(date, dayHours.start)
   const dayEnd = buildDateTime(date, dayHours.end)
   const stepMs = SLOT_STEP_MIN * 60000
-  const earliestStartMs = getEarliestBookableStartMs(date, dayStart.getTime(), stepMs)
+  const earliestStartMs = getEarliestBookableStartMs(
+    date,
+    dayStart.getTime(),
+    stepMs,
+  )
 
   if (startTime.getTime() < earliestStartMs) {
     return { error: "Это время уже недоступно. Выберите более поздний слот." }
@@ -817,22 +896,26 @@ function getCalendarEventsInWindow(calendar, windowStart, windowEnd) {
   const scanStart = new Date(startMs - dayMs)
   const scanEnd = new Date(endMs + dayMs)
 
-  return calendar.getEvents(scanStart, scanEnd).filter((ev) =>
-    intervalsOverlap(
-      startMs,
-      endMs,
-      ev.getStartTime().getTime(),
-      ev.getEndTime().getTime(),
-    ),
-  )
+  return calendar
+    .getEvents(scanStart, scanEnd)
+    .filter((ev) =>
+      intervalsOverlap(
+        startMs,
+        endMs,
+        ev.getStartTime().getTime(),
+        ev.getEndTime().getTime(),
+      ),
+    )
 }
 
 function getActiveConflicts(calendar, startTime, endTime, ignoredEventId) {
-  return getCalendarEventsInWindow(calendar, startTime, endTime).filter((ev) => {
-    if (ev.getId() === ignoredEventId) return false
-    if (ev.getTitle().startsWith(HOURS_PREFIX)) return false
-    return true
-  })
+  return getCalendarEventsInWindow(calendar, startTime, endTime).filter(
+    (ev) => {
+      if (ev.getId() === ignoredEventId) return false
+      if (ev.getTitle().startsWith(HOURS_PREFIX)) return false
+      return true
+    },
+  )
 }
 
 function getMatchingHoldEvent(calendar, holdId, startTime, endTime) {
@@ -867,7 +950,8 @@ function buildHoldDescription(
     "🧹 Буфер после услуги: " + POST_SERVICE_BUFFER_MIN + " мин",
     "🕒 Занято в календаре: " + totalDuration + " мин",
     "holdCreatedTs=" + holdCreated.getTime(),
-    "Держать до: " + Utilities.formatDate(holdExpires, TIMEZONE, "dd.MM.yyyy HH:mm"),
+    "Держать до: " +
+      Utilities.formatDate(holdExpires, TIMEZONE, "dd.MM.yyyy HH:mm"),
     "holdUntilTs=" + holdExpires.getTime(),
   ].join("\n")
 }
@@ -886,7 +970,11 @@ function buildBookingDescription(
   comment,
 ) {
   const endFmt = Utilities.formatDate(endTime, TIMEZONE, "HH:mm")
-  const bookedAt = Utilities.formatDate(new Date(), TIMEZONE, "dd.MM.yyyy HH:mm")
+  const bookedAt = Utilities.formatDate(
+    new Date(),
+    TIMEZONE,
+    "dd.MM.yyyy HH:mm",
+  )
 
   return [
     "👤 Клиент: " + name,
@@ -904,10 +992,19 @@ function buildBookingDescription(
 }
 
 function appendAuditTrail(description, line) {
-  return [description || "", line ? "" : "", line || ""].filter(Boolean).join("\n")
+  return [description || "", line ? "" : "", line || ""]
+    .filter(Boolean)
+    .join("\n")
 }
 
-function saveBookingEvent(calendar, holdEvent, title, startTime, endTime, description) {
+function saveBookingEvent(
+  calendar,
+  holdEvent,
+  title,
+  startTime,
+  endTime,
+  description,
+) {
   if (holdEvent) {
     holdEvent.setTitle(title)
     holdEvent.setDescription(description)
@@ -1023,9 +1120,7 @@ function getDayHours(date, calendar) {
 
 function handleGetAppointments(params) {
   const calendar = getCalendar()
-  const from = params.from
-    ? buildDateTime(params.from, "00:00")
-    : new Date()
+  const from = params.from ? buildDateTime(params.from, "00:00") : new Date()
   const to = params.to
     ? buildDateTime(params.to, "23:59")
     : new Date(from.getTime() + 90 * 24 * 3600000)
@@ -1139,10 +1234,16 @@ function handleSetCustomHours(body) {
   const breaks = normalizeCustomBreaks(body.breaks)
   for (const br of breaks) {
     if (br.end <= br.start) {
-      return { success: false, error: "Перерыв должен заканчиваться позже начала" }
+      return {
+        success: false,
+        error: "Перерыв должен заканчиваться позже начала",
+      }
     }
     if (br.start < start || br.end > end) {
-      return { success: false, error: "Перерыв должен быть внутри рабочего дня" }
+      return {
+        success: false,
+        error: "Перерыв должен быть внутри рабочего дня",
+      }
     }
   }
 
@@ -1531,9 +1632,7 @@ function buildZonedDateTime(year, month, day, hour, minute) {
 }
 
 function getTimeZoneOffsetMs(date, timeZone) {
-  return parseTimeZoneOffsetMs(
-    Utilities.formatDate(date, timeZone, "Z"),
-  )
+  return parseTimeZoneOffsetMs(Utilities.formatDate(date, timeZone, "Z"))
 }
 
 function parseTimeZoneOffsetMs(offsetStr) {
@@ -1595,7 +1694,9 @@ function getHoldExpiryTs(event) {
   const parsedHoldUntil = parseHoldExpiryDescription(desc)
   if (parsedHoldUntil !== null) return parsedHoldUntil
 
-  const fullMatch = desc.match(/Держать до: (\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})/)
+  const fullMatch = desc.match(
+    /Держать до: (\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})/,
+  )
   if (fullMatch) {
     return new Date(
       Number(fullMatch[3]),
@@ -1732,4 +1833,66 @@ function testCreateAndDeleteEvent() {
   }
 }
 
+function handleGetAvailableDates(params) {
+  const year = Number(params.year)
+  const month = Number(params.month)
+  const { serviceIds, duration, ignoreEventId, serviceLabel } = params
 
+  if (
+    !year ||
+    !month ||
+    month < 1 ||
+    month > 12 ||
+    (!serviceIds && !duration)
+  ) {
+    return {
+      error: "Parameters year, month and serviceIds/duration are required",
+    }
+  }
+
+  const selection = serviceIds
+    ? resolveServiceSelection(serviceIds)
+    : resolveDurationSelection(duration, serviceLabel)
+  if (selection.error) {
+    return { error: selection.error }
+  }
+
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const todayStr = formatDate(new Date())
+  const availableDates = []
+
+  // ── ONE calendar reference for the whole month ──────────────
+  const calendar = getCalendar()
+
+  // ── Fetch ALL month events in a single API call ─────────────
+  const monthStart = buildDateTime(formatDateParts(year, month, 1), "00:00")
+  const monthEnd = buildDateTime(
+    formatDateParts(year, month, daysInMonth),
+    "23:59",
+  )
+  // Clean expired holds once across the whole month
+  cleanExpiredHoldsInRange(calendar, monthStart, monthEnd)
+
+  // Pre-fetch all events for the month in one shot
+  const allMonthEvents = calendar.getEvents(monthStart, monthEnd)
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = formatDateParts(year, month, day)
+    if (date < todayStr) continue
+
+    const availability = getDayAvailabilityFromEvents(
+      date,
+      selection,
+      calendar,
+      allMonthEvents,
+      {
+        ignoredEventId: ignoreEventId || null,
+      },
+    )
+    if (availability.slots && availability.slots.length) {
+      availableDates.push(date)
+    }
+  }
+
+  return { availableDates }
+}

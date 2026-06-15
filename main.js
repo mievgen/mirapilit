@@ -2,7 +2,7 @@
 // ⚙️  URL вашего Google Apps Script
 // ════════════════════════════════════════════
 const API =
-  "https://script.google.com/macros/s/AKfycbxRz-wEUshZbIeWADCWQTZhYdGkz70oSYUqY3GaJRerfmE4PK5b_Y59uKpH0ggo9rw/exec"
+  "https://script.google.com/macros/s/AKfycbzE-i6cBasE8YAStI_O6-VfgD4BKkyAxWRq9xj-s0VEj8yRqkswL1g1scoXQwdAnc4/exec"
 // ════════════════════════════════════════════
 
 function isDemoMode() {
@@ -189,6 +189,7 @@ function onSvcChange() {
 }
 
 // ── STEP 2: CALENDAR ─────────────────────────────────
+
 function renderCal() {
   const y = S.calY,
     m = S.calM
@@ -204,6 +205,16 @@ function renderCal() {
     S.availableDates instanceof Set
   const waitingAvailability =
     useAvailability && !hasAvailabilityData && S.availabilityLoading
+
+  // ── Loading / no-dates indicators ──────────────────
+  const loadingEl = document.getElementById("cal-loading")
+  const noDatesEl = document.getElementById("cal-no-dates")
+  if (loadingEl) loadingEl.classList.toggle("show", !!waitingAvailability)
+  if (noDatesEl) {
+    const isEmpty = hasAvailabilityData && S.availableDates.size === 0
+    noDatesEl.classList.toggle("show", isEmpty)
+  }
+  // ────────────────────────────────────────────────────
 
   const firstDow = new Date(y, m, 1).getDay()
   const offset = firstDow === 0 ? 6 : firstDow - 1
@@ -249,6 +260,7 @@ function renderCal() {
     grid.appendChild(btn)
   }
 }
+
 
 function shiftMonth(d) {
   S.calM += d

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title> Mirapilit - Онлайн запись</title>
+    <title>Mirapilit - Онлайн запись</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap"
@@ -469,11 +469,15 @@
       <div class="card" id="s2">
         <div class="card-title">Выберите дату</div>
         <div class="card-hint">Серым отмечены нерабочие дни</div>
+        <div id="cal-loading">Загружаем расписание…</div>
+        <div id="cal-no-dates">На этот месяц свободных дат нет</div>
+
         <div class="cal-nav-row">
           <button class="cal-btn" onclick="shiftMonth(-1)">‹</button>
           <div class="cal-month-lbl" id="cal-lbl"></div>
           <button class="cal-btn" onclick="shiftMonth(1)">›</button>
         </div>
+
         <div class="cal-grid" id="cal-grid">
           <div class="dow">Пн</div>
           <div class="dow">Вт</div>
@@ -554,7 +558,14 @@
           <div
             class="field"
             aria-hidden="true"
-            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden"
+            style="
+              position: absolute;
+              left: -10000px;
+              top: auto;
+              width: 1px;
+              height: 1px;
+              overflow: hidden;
+            "
           >
             <label>Website</label
             ><input
