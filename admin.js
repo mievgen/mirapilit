@@ -1,5 +1,5 @@
 const API =
-  "https://script.google.com/macros/s/AKfycbzE-i6cBasE8YAStI_O6-VfgD4BKkyAxWRq9xj-s0VEj8yRqkswL1g1scoXQwdAnc4/exec"
+  "https://script.google.com/macros/s/AKfycbxks-NIPlXfMIxD1SrLHFQPjdgeCGO9jsO53yvQAr8MvARfE5sN7Hf_jUhJfuWuCOY/exec"
 const DAY_MS = 24 * 60 * 60 * 1000
 const WEEKDAYS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]
 const MONTHS = [

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mirapilit - Онлайн запись</title>
+    <title>Mirapilit | Мира пилит</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap"
@@ -199,6 +199,28 @@
               <input
                 type="checkbox"
                 value="pedicure"
+                data-dur="60"
+                onchange="onSvcChange()"
+              />
+              <div class="svc-tile">
+                <div class="svc-check-box">✓</div>
+                <div class="svc-text">
+                  <div class="svc-name">
+                    Педикюр<em>(обработка пальчиков, без покрытие)</em>
+                  </div>
+                  <div class="svc-meta">
+                    <span class="svc-dur">60 мин</span
+                    ><span class="svc-sep">·</span
+                    ><span class="svc-price">от 2 000 ₽</span>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <label class="svc-cb">
+              <input
+                type="checkbox"
+                value="pedicure_top"
                 data-dur="90"
                 onchange="onSvcChange()"
               />

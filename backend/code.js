@@ -34,8 +34,9 @@ const SERVICES = {
   extensions: { label: "Наращивание ногтей", duration: 150 },
   correction: { label: "Коррекция ногтей", duration: 120 },
   // Педикюр
-  pedicure: { label: "Педикюр", duration: 90 },
-  pedicure_hygiene: { label: "Покрытие гигиенический", duration: 90 },
+  pedicure: { label: "Педикюр без покрытия", duration: 60 },
+  pedicure_top: { label: "Педикюр с покрытием", duration: 90 },
+  pedicure_hygiene: { label: "Педикюр гигиенический", duration: 90 },
   full_pedicure: { label: "Полный педикюр", duration: 120 },
   // Брови
   brow_shape: { label: "Коррекция бровей", duration: 30 },
@@ -67,21 +68,20 @@ function getAdminPassword() {
   return PropertiesService.getScriptProperties().getProperty("ADMIN_PASSWORD")
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  CORS — обработка preflight OPTIONS-запроса                  ║
-// ║  Apps Script не вызывает doOptions автоматически, но         ║
-// ║  наличие функции + text/plain Content-Type на фронте         ║
-// ║  полностью решает проблему CORS.                             ║
-// ╚══════════════════════════════════════════════════════════════╝
+
+//   CORS — обработка preflight OPTIONS-запроса                  
+//  Apps Script не вызывает doOptions автоматически, но        
+//  наличие функции + text/plain Content-Type на фронте         
+//   полностью решает проблему CORS.                             
+
 function doOptions(e) {
   return ContentService.createTextOutput("").setMimeType(
     ContentService.MimeType.TEXT,
   )
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║                    МАРШРУТИЗАЦИЯ                             ║
-// ╚══════════════════════════════════════════════════════════════╝
+
+//    МАРШРУТИЗАЦИЯ                             
 
 function doGet(e) {
   // Guard: при ручном запуске из редактора (кнопка ▶ Run)
@@ -198,9 +198,9 @@ function adminOnly(params, handler) {
   return handler(params)
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║                  ПУБЛИЧНЫЕ ЭНДПОИНТЫ                         ║
-// ╚══════════════════════════════════════════════════════════════╝
+
+//                  ПУБЛИЧНЫЕ ЭНДПОИНТЫ                         
+
 
 function handleGetServices() {
   return { services: SERVICES }
@@ -1085,10 +1085,10 @@ function hashKey(value) {
     .join("")
 }
 
-// ──────────────────────────────────────────────────────────────
+
 // Возвращает рабочие часы на дату: сначала ищет [ЧАСЫ] событие,
 // иначе берёт DEFAULT_SCHEDULE
-// ──────────────────────────────────────────────────────────────
+
 function getDayHours(date, calendar) {
   const cal = calendar || getCalendar()
   const midnight = buildDateTime(date, "00:00")
@@ -1590,9 +1590,8 @@ function cleanAllExpiredHolds() {
   })
 }
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║                      УТИЛИТЫ                                 ║
-// ╚══════════════════════════════════════════════════════════════╝
+
+//                       УТИЛИТЫ                                
 
 function getCalendar() {
   // No module-level cache — Apps Script can persist stale references
